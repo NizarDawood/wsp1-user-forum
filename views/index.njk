@@ -1,8 +1,20 @@
 {% extends "layout.njk" %}
-{% block  content %}
+{% block content %}
 <main class="container mt-3">
     <h1>{{ title }}</h1>
     <button type="submit"><a href="/login">Login</a></button>
     <button type="submit"><a href="/register">Register</a></button>
+
+    
+        {% for row in rows %}
+        <section>
+            {{ row.id }} {{ row.authorId }} {{ row.author }}
+            <h1>{{ row.title }}</h1>
+            <p>{{ row.content }}</p>
+            <p>Created {{ row.createdAt }}</p>
+            <p>{{ row.name }}</p>
+        </section>
+        {% endfor %}
+    
 </main>
 {% endblock %}

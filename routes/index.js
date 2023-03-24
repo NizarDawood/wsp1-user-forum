@@ -8,11 +8,11 @@ const session = require('express-session');
 const promisePool = pool.promise();
 
 
-/* GET home page. */
+/* GET home page. 
 router.get('/', async function (req, res, next) {
     res.render('index.njk', { title: 'Posteit' });
 
-});
+});*/
 
 
 router.get('/login', async function (req, res, next) {
@@ -132,5 +132,28 @@ router.post('/register', async function (req, res, next) {
     }
 });
 
+router.get('/', async function (req, res, next) {
+    const [rows] = await promisePool.query("SELECT * FROM tb02forum");
+    res.render('index.njk', {
+        rows: rows,
+        title: 'Forum' 
+    });
+});
+
+router.post('/', async function(req, res, next){
+    
+});
+
+
+router.post('/new', async function (req, res, next) {
+    const { author, title, content } = req.body;
+    const [rows] = await promisePool.query("INSERT INTO nd20forum (author, title, content) VALUES (?, ?, ?)", [author, title, content]);
+    res.redirect('/');
+});
+router.get('/new', async function (req, res, next) {
+    res.render('new.njk', {
+        title: 'Nytt inlägg',
+    });
+});
 
 module.exports = router;

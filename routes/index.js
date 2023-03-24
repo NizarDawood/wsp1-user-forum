@@ -20,12 +20,12 @@ router.get('/login', async function (req, res, next) {
     res.render('login.njk', { title: 'Log' });
 });
 
-router.get('/forum', async function (req, res, next) {
+router.get('/profile', async function (req, res, next) {
 
 
     if (req.session.login == 1) {
 
-        res.render('forum.njk', { title: 'Forum', name: req.session.username })
+        res.render('profile.njk', { title: 'profile', name: req.session.username })
         //profile
     }
     else {

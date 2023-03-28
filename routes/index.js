@@ -8,11 +8,6 @@ const session = require('express-session');
 const promisePool = pool.promise();
 
 
-/* GET home page. 
-router.get('/', async function (req, res, next) {
-    res.render('index.njk', { title: 'Posteit' });
-
-});*/
 
 
 router.get('/login', async function (req, res, next) {
@@ -20,12 +15,12 @@ router.get('/login', async function (req, res, next) {
     res.render('login.njk', { title: 'Log' });
 });
 
-router.get('/profile', async function (req, res, next) {
+router.get('/forum', async function (req, res, next) {
 
 
     if (req.session.login == 1) {
 
-        res.render('profile.njk', { title: 'profile', name: req.session.username })
+        res.render('forum.njk', { title: 'PostIt', name: req.session.username })
         //profile
     }
     else {
@@ -34,7 +29,7 @@ router.get('/profile', async function (req, res, next) {
 
 });
 
-router.post('/profile', async function (req, res, next) {
+router.post('/forum', async function (req, res, next) {
     req.body = { logout };
 
 
@@ -46,10 +41,19 @@ router.get('/logout', async function (req, res, next) {
     req.session.login = 0;
 });
 
-router.post('/logout', async function (req, res, next) {
+router.post('/forum', async function (req, res, next) {
+    req.body = { profile };
 
 
 });
+
+router.get('/profile', async function (req, res, next) {
+
+    res.render('profile.njk', { title: 'profile' });
+    req.session.login = 0;
+});
+
+
 
 router.post('/login', async function (req, res, next) {
     const { username, password } = req.body;
@@ -72,7 +76,7 @@ router.post('/login', async function (req, res, next) {
             // return res.send('Welcome')
             req.session.username = username;
             req.session.login = 1;
-            return res.redirect('/Profile');
+            return res.redirect('/forum');
         }
 
         else {
@@ -92,9 +96,7 @@ router.get('/crypt/:password', async function (req, res, next) {
     })
 });
 
-router.get('/signin', function (req, res, next) {
-    res.render('signin.njk', { title: 'sign' });
-});
+
 
 router.get('/register', function (req, res, next) {
     res.render('register.njk', { title: 'register' });
@@ -133,17 +135,33 @@ router.post('/register', async function (req, res, next) {
 });
 
 router.get('/', async function (req, res, next) {
-    const [rows] = await promisePool.query("SELECT * FROM tb02forum");
+    const [rows] = await promisePool.query("SELECT * FROM nd20forum");
     res.render('index.njk', {
         rows: rows,
-        title: 'Forum' 
+        title: 'PostIt' 
     });
 });
 
-router.post('/', async function(req, res, next){
-    
-});
 
+
+
+
+router.get('/delete', async function (req, res, next) {
+
+    res.render('delete.njk', {
+        title: 'Delete',
+        user: req.session.login || 0
+     });
+
+});
+router.post('/delete', async function (req, res, next) {
+    const { username } = req.body;
+    if (req.session.login === 1) {
+        const [Delet] = await promisePool.query('DELETE FROM nzduserforum WHERE name = ?', [username]);
+        req.session.login = 0
+        res.redirect('/')
+    }
+});
 
 router.post('/new', async function (req, res, next) {
     const { author, title, content } = req.body;
@@ -155,5 +173,6 @@ router.get('/new', async function (req, res, next) {
         title: 'Nytt inlägg',
     });
 });
+
 
 module.exports = router;

@@ -17,17 +17,16 @@ router.get('/login', async function (req, res, next) {
 
 router.get('/forum', async function (req, res, next) {
 
-
     if (req.session.login == 1) {
-
-        res.render('forum.njk', { title: 'PostIt', name: req.session.username })
-        //profile
+        const [rows] = await promisePool.query("SELECT * FROM nd20forum");
+        res.render('forum.njk', { title: 'PostIt', name: req.session.username, rows: rows });
     }
     else {
-        return res.status(401).send('Access denied')
+        return res.status(401).send('Access denied');
     }
-
 });
+
+
 
 router.post('/forum', async function (req, res, next) {
     req.body = { logout };
@@ -163,9 +162,11 @@ router.post('/delete', async function (req, res, next) {
     }
 });
 
+
+
 router.post('/new', async function (req, res, next) {
-    const { author, title, content } = req.body;
-    const [rows] = await promisePool.query("INSERT INTO nd20forum (author, title, content) VALUES (?, ?, ?)", [author, title, content]);
+    const {author, title, content } = req.body;
+    const [rows] = await promisePool.query("INSERT INTO nd20forum (author, title, content) VALUES ( ?, ?, ?)", [author, title, content]);
     res.redirect('/');
 });
 router.get('/new', async function (req, res, next) {

@@ -5,7 +5,9 @@
     "main": "server.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "dev": "nodemon -e js,html,njk .server.js"
+        "dev": "nodemon -e js,html,njk .server.js",
+        "start": "npm-run-all build:sass --parallel watch:*",
+        "scss": "sass --watch scss:public/css"
     },
     "keywords": [],
     "author": "",
@@ -21,6 +23,8 @@
         "express-session": "^1.17.3",
         "morgan": "^1.10.0",
         "mysql2": "^3.2.0",
-        "nunjucks": "^3.2.3"
+        "nunjucks": "^3.2.3",
+        "reset-css": "^5.0.1",
+        "sass": "^1.60.0"
     }
 }

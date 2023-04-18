@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-
 const { response } = require('express');
 const bcrypt = require('bcrypt');
 const pool = require('../utils/database.js');
@@ -66,13 +65,11 @@ router.post('/login', async function (req, res, next) {
     }
 
     const [user] = await promisePool.query('SELECT * FROM nzduserforum WHERE name = ?', [username]);
-   
+
 
     bcrypt.compare(password, user[0].password, function (err, result) {
-        //logga in eller nåt
 
         if (result === true) {
-            // return res.send('Welcome')
             req.session.username = username;
             req.session.login = 1;
             return res.redirect('/forum');
@@ -113,6 +110,9 @@ router.post('/register', async function (req, res, next) {
     else if (password.length === 0) {
         return res.send('Password is Required')
     }
+    else if (password && password.length <= 8) {
+        response.errors.push('password must be at least 8 characters');
+    }
     else if (passwordConfirmation.length === 0) {
         return res.send('Password is Required')
     }
@@ -137,7 +137,7 @@ router.get('/', async function (req, res, next) {
     const [rows] = await promisePool.query("SELECT * FROM nd20forum");
     res.render('index.njk', {
         rows: rows,
-        title: 'PostIt' 
+        title: 'PostIt'
     });
 });
 
@@ -149,44 +149,74 @@ router.get('/', async function (req, res, next) {
 
 router.get('/delete', async function (req, res, next) {
     res.render('delete.njk', {
-      title: 'Delete',
-      user: req.session.login || 0
+        title: 'Delete',
+        user: req.session.login || 0
     });
-  });
-  
-  router.post('/delete', async function (req, res, next) {
-    const { username, password } = req.body; // extract username and password from the request body
+});
+
+router.post('/delete', async function (req, res, next) {
+    const { username, password } = req.body;
     if (!username) {
-      return res.send('Username is required'); // validate that username is not empty
+        return res.send('Username is required');
     }
     if (!password) {
-      return res.send('Password is required'); // validate that password is not empty
+        return res.send('Password is required');
     }
+
     const [user] = await promisePool.query('SELECT * FROM nzduserforum WHERE name = ?', [username]);
     if (!user.length) {
-      return res.send('User not found'); // validate that the user exists in the database
+        return res.send('User not found');
     }
     bcrypt.compare(password, user[0].password, function (err, result) {
-      if (result === true) {
-        promisePool.query('DELETE FROM nzduserforum WHERE name = ?', [username])
-          .then(() => {
-            req.session.destroy(); // destroy the user session on successful delete
-            res.redirect('/');
-          })
-          .catch((error) => {
-            console.error(error);
-            res.send('Error deleting user');
-          });
-      } else {
-        res.send('Invalid username or password');
-      }
+        if (result === true) {
+            promisePool.query('DELETE FROM nzduserforum WHERE name = ?', [username])
+                .then(() => {
+                    req.session.destroy();
+                    res.redirect('/');
+                })
+                .catch((error) => {
+                    console.error(error);
+                    res.send('Error deleting user');
+                });
+        } else {
+            res.send('Invalid username or password');
+        }
     });
-  });
-  
+});
+
 
 
 router.post('/new', async function (req, res, next) {
-    const {author, title, content } = req.body;
+    const { author, title, content } = req.body;
+
+    if (!title) {
+        res.send('Title is required');
+    }
+    if (!content) {
+        res.send('Body is required');
+    }
+    if (title && title.length <= 3) {
+        res.send('Title must be at least 3 characters');
+    }
+    if (content && content.length <= 10) {
+        res.send('Body must be at least 10 characters');
+    }
+    if (res.length === 0) {
+        // sanitize title och body, tvätta datan
+        const sanitize = (str) => {
+            let temp = str.trim();
+            temp = validator.stripLow(temp);
+            temp = validator.escape(temp);
+            return temp;
+        };
+    }
+    if (!title) {
+        sanitizedTitle = sanitize(title);
+    }
+    if (!content) {
+        sanitizedBody = sanitize(content);
+    }
+   
     const [rows] = await promisePool.query("INSERT INTO nd20forum (author, title, content) VALUES ( ?, ?, ?)", [author, title, content]);
     res.redirect('/forum');
 });

@@ -214,7 +214,7 @@ router.post('/new', async function (req, res, next) {
         sanitizedTitle = sanitize(title);
     }
     if (!content) {
-        sanitizedBody = sanitize(content);
+        sanitizedcontent = sanitize(content);
     }
    
     const [rows] = await promisePool.query("INSERT INTO nd20forum (author, title, content) VALUES ( ?, ?, ?)", [author, title, content]);

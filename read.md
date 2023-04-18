@@ -9,8 +9,11 @@ Vad hindrar mig från...
 det var svårt att slå ihop de i börja och förstå hur routes fungerade. 
 jag hade inte häller gjort klart mitt forum så jag gjorde klar den innan jag slog ihop forummet med login 
 ju mer man arbetar med det förstår man mer hur det funkar arbeta med post och get och funtioner.
-haft problem med min scss.
- jag har blivet bätt på att läsa felmedelanden 
-  det var väldigt mycket olika att hålla kåll på samtidigt 
+jag har blivet bättre på att läsa felmedelanden det var väldigt mycket olika att hålla kåll på samtidigt 
 
 
+
+
+
+
+ 

@@ -145,29 +145,50 @@ router.get('/', async function (req, res, next) {
 
 
 
+
+
 router.get('/delete', async function (req, res, next) {
-
     res.render('delete.njk', {
-        title: 'Delete',
-        user: req.session.login || 0
-     });
-
-});
-router.post('/delete', async function (req, res, next) {
-    const { username } = req.body;
-    if (req.session.login === 1) {
-        const [Delet] = await promisePool.query('DELETE FROM nzduserforum WHERE name = ?', [username]);
-        req.session.login = 0
-        res.redirect('/')
+      title: 'Delete',
+      user: req.session.login || 0
+    });
+  });
+  
+  router.post('/delete', async function (req, res, next) {
+    const { username, password } = req.body; // extract username and password from the request body
+    if (!username) {
+      return res.send('Username is required'); // validate that username is not empty
     }
-});
-
+    if (!password) {
+      return res.send('Password is required'); // validate that password is not empty
+    }
+    const [user] = await promisePool.query('SELECT * FROM nzduserforum WHERE name = ?', [username]);
+    if (!user.length) {
+      return res.send('User not found'); // validate that the user exists in the database
+    }
+    bcrypt.compare(password, user[0].password, function (err, result) {
+      if (result === true) {
+        promisePool.query('DELETE FROM nzduserforum WHERE name = ?', [username])
+          .then(() => {
+            req.session.destroy(); // destroy the user session on successful delete
+            res.redirect('/');
+          })
+          .catch((error) => {
+            console.error(error);
+            res.send('Error deleting user');
+          });
+      } else {
+        res.send('Invalid username or password');
+      }
+    });
+  });
+  
 
 
 router.post('/new', async function (req, res, next) {
     const {author, title, content } = req.body;
     const [rows] = await promisePool.query("INSERT INTO nd20forum (author, title, content) VALUES ( ?, ?, ?)", [author, title, content]);
-    res.redirect('/');
+    res.redirect('/forum');
 });
 router.get('/new', async function (req, res, next) {
     res.render('new.njk', {

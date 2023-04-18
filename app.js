@@ -13,7 +13,7 @@ var session = require('express-session')
 
 nunjucks.configure('views', {
     autoescape: true,
-    express: app
+    express: app,
 });
 
 app.use(logger('dev'));
@@ -26,7 +26,7 @@ app.use(session({
     secret: 'keyboard cat',
     resave: false,
     saveUninitialized: true,
-  }))
+}))
   
 app.use('/', indexRouter);
 

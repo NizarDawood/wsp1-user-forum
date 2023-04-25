@@ -184,25 +184,31 @@ router.post('/delete', async function (req, res, next) {
     });
 });
 
+router.get('/new', async function (req, res, next) {
+    res.render('new.njk', {
+        title: 'Nytt inlägg',
+    });
+});
+
 
 
 router.post('/new', async function (req, res, next) {
     const { author, title, content } = req.body;
+    const error = [];
 
     if (!title) {
-        res.send('Title is required');
+        error.push('Title is required');
     }
     if (!content) {
-        res.send('Body is required');
+        error.push('Body is required');
     }
     if (title && title.length <= 3) {
-        res.send('Title must be at least 3 characters');
+        error.push('Title must be at least 3 characters');
     }
     if (content && content.length <= 10) {
-        res.send('Body must be at least 10 characters');
+        error.push('Body must be at least 10 characters');
     }
     if (res.length === 0) {
-        // sanitize title och body, tvätta datan
         const sanitize = (str) => {
             let temp = str.trim();
             temp = validator.stripLow(temp);
@@ -211,20 +217,26 @@ router.post('/new', async function (req, res, next) {
         };
     }
     if (!title) {
-        sanitizedTitle = sanitize(title);
+        sanitizedTitle = sanitize(title)
     }
     if (!content) {
-        sanitizedcontent = sanitize(content);
+        sanitizedcontent = sanitize(content)
     }
-   
-    const [rows] = await promisePool.query("INSERT INTO nd20forum (author, title, content) VALUES ( ?, ?, ?)", [author, title, content]);
-    res.redirect('/forum');
+    if (error.length === 0) {
+        try {
+            const [rows] = await promisePool.query("INSERT INTO nd20forum (author, title, content) VALUES ( ?, ?, ?)", [author, title, content]);
+            res.redirect('/forum');
+        } catch (error) {
+            console.error(error);
+        }
+    } else {
+        res.send(error);
+    }
+
+
 });
-router.get('/new', async function (req, res, next) {
-    res.render('new.njk', {
-        title: 'Nytt inlägg',
-    });
-});
+
+
 
 
 module.exports = router;
